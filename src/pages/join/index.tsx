@@ -321,7 +321,6 @@ const RootPage = () => {
               onChange={handleNameChange}
               placeholder="이름을 입력해주세요"
               className="w-full p-3 text-lg rounded-lg border-2 border-gray-300 text-center"
-              autoFocus
             />
           </div>
         );
@@ -336,7 +335,6 @@ const RootPage = () => {
                   onChange={handleNameChange}
                   placeholder="이름을 입력해주세요"
                   className="w-full p-3 text-lg rounded-lg border-2 border-gray-300 text-center"
-                  autoFocus
                 />
               </div>
             )}
