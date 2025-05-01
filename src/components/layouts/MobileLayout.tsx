@@ -17,7 +17,7 @@ const MobileLayout = ({ children, backgroundColor, backgroundImage }: MobileLayo
       <style>{keyframes.pulse}</style>
 
       <div
-        className="relative w-full max-w-[390px] max-h-[700px] h-dvh overflow-hidden border-gray-300 border-[1px]"
+        className="relative w-full max-w-[390px] max-h-[700px] h-dvh overflow-auto border-gray-300 border-[1px]"
         style={{
           backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
           backgroundColor: backgroundImage ? 'transparent' : backgroundColor,

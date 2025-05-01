@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import bgImage from '../../assets/bg.webp';
 import heroImage from '../../assets/hero.gif';
 import loaderImage from '../../assets/loader.png';
-import team1Image from '../../assets/team1.png';
-import team2Image from '../../assets/team2.png';
-import team3Image from '../../assets/team3.png';
-import team4Image from '../../assets/team4.png';
-import team5Image from '../../assets/team5.png';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import congratsAnimation from '../../assets/congrats.json';
 import MobileLayout from '../../components/layouts/MobileLayout.tsx';
+import { teamService, participantService } from '../../api';
+import { Team } from '../../types/team.types';
+import { Participant, ParticipantCreate } from '../../types/participant.types';
 
 const spinKeyframes = `
   @keyframes spin {
@@ -74,21 +73,100 @@ const fadeInKeyframes = `
 `;
 
 const RootPage = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [selections, setSelections] = useState<string[]>([]);
   const [displayText, setDisplayText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSpark, setShowSpark] = useState(false);
-  const [selectedTeamIndex, setSelectedTeamIndex] = useState(0);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [isTeamsLoaded, setIsTeamsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
   const hasAnimatedRef = useRef<Record<number, boolean>>({});
   const typingIntervalRef = useRef<number | null>(null);
   const currentStepRef = useRef<number>(1);
   const congratsRef = useRef<LottieRefCurrentProps>(null);
 
-  const handleNext = () => {
-    console.log('handleNext called! Current step:', step);
+  useEffect(() => {
+    // localStorage에 저장된 참가자 ID가 있는지 확인
+    const savedParticipantId = localStorage.getItem('participantId');
+    if (savedParticipantId) {
+      checkSavedParticipant(savedParticipantId);
+    }
+  }, []);
 
+  // 저장된 참가자 정보 확인
+  const checkSavedParticipant = async (participantId: string) => {
+    try {
+      const participant = await participantService.getById(participantId);
+      if (participant) {
+        // 참가자 정보가 확인되면 localStorage에 저장하고 main으로 이동
+        saveParticipantToLocalStorage(participant);
+        navigate('/main');
+      }
+    } catch (error) {
+      console.error('저장된 참가자 정보 확인 실패:', error);
+      // 오류 발생 시 localStorage 초기화
+      localStorage.removeItem('participantId');
+    }
+  };
+
+  // 팀 데이터 불러오기
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        // 활성화된 팀만 가져오기 (getByBatch 메서드는 is_active=true 조건이 포함됨)
+        const teamsData = await teamService.getByBatch(1);
+        if (teamsData && teamsData.length > 0) {
+          setTeams(teamsData);
+          setIsTeamsLoaded(true);
+        } else {
+          console.error('팀 데이터가 없습니다.');
+        }
+      } catch (error) {
+        console.error('팀 데이터 로딩 중 오류 발생:', error);
+      }
+    };
+
+    fetchTeams();
+  }, []);
+
+  // 이름 중복 확인
+  const checkNameExists = async (name: string) => {
+    if (!name.trim()) return false;
+    
+    try {
+      setIsChecking(true);
+      const participants = await participantService.getByName(name.trim());
+      setIsChecking(false);
+      
+      if (participants && participants.length > 0) {
+        // 이름이 중복되면 해당 참가자 정보를 localStorage에 저장하고 main으로 이동
+        saveParticipantToLocalStorage(participants[0]);
+        navigate('/main');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('이름 중복 확인 중 오류 발생:', error);
+      setIsChecking(false);
+      return false;
+    }
+  };
+
+  // 참가자 정보를 localStorage에 저장
+  const saveParticipantToLocalStorage = (participant: Participant) => {
+    localStorage.setItem('participantId', participant.id);
+    localStorage.setItem('participantName', participant.name);
+    localStorage.setItem('participantTeam', participant.team);
+    localStorage.setItem('participantRole', participant.role);
+    localStorage.setItem('participantBatch', participant.batch.toString());
+  };
+
+  const handleNext = () => {
     if (typingIntervalRef.current) {
       clearInterval(typingIntervalRef.current);
       typingIntervalRef.current = null;
@@ -118,7 +196,6 @@ const RootPage = () => {
       return;
     }
 
-    console.log('Moving to next step:', step + 1);
     const nextStep = step + 1;
     currentStepRef.current = nextStep;
     setStep(nextStep);
@@ -128,11 +205,95 @@ const RootPage = () => {
     }, 100);
   };
 
+  // 가장 적은 인원을 가진 팀을 선택하는 함수
+  const selectLeastPopulatedTeam = async () => {
+    try {
+      // 활성화된 팀만 이미 불러온 상태 (teams 배열)
+      if (!isTeamsLoaded || teams.length === 0) {
+        console.error('팀 데이터가 로드되지 않았습니다.');
+        return null;
+      }
+
+      // 팀별 참가자 수 가져오기
+      const teamCounts = await participantService.getTeamCounts(1);
+      if (!teamCounts) {
+        console.error('팀별 참가자 수를 가져오는 데 실패했습니다.');
+        return teams[Math.floor(Math.random() * teams.length)]; // 실패시 랜덤 선택
+      }
+
+      // 각 팀의 참가자 수 확인 (없는 팀은 0으로 초기화)
+      const teamsWithCounts = teams.map(team => ({
+        ...team,
+        count: teamCounts[team.name] || 0
+      }));
+
+      // 가장 적은 인원을 가진 팀 찾기
+      const minCount = Math.min(...teamsWithCounts.map(t => t.count));
+      const leastPopulatedTeams = teamsWithCounts.filter(t => t.count === minCount);
+
+      // 가장 적은 인원을 가진 팀이 여러 개라면 그 중 랜덤으로 선택
+      const selectedTeam = leastPopulatedTeams[Math.floor(Math.random() * leastPopulatedTeams.length)];
+
+      return selectedTeam;
+    } catch (error) {
+      console.error('팀 선택 중 오류 발생:', error);
+      return teams[Math.floor(Math.random() * teams.length)]; // 오류 발생 시 랜덤 선택
+    }
+  };
+
+  // 참가자를 DB에 저장하는 함수
+  const createParticipant = async (team: Team) => {
+    try {
+      if (!name.trim()) {
+        console.error('참가자 이름이 없습니다.');
+        return false;
+      }
+
+      const newParticipant: ParticipantCreate = {
+        name: name.trim(),
+        team: team.name,
+        role: '참가자', // 기본 역할
+        batch: 1 // 1기로 고정
+      };
+
+      const result = await participantService.create(newParticipant);
+      if (result && result.length > 0) {
+        // 참가자 생성 성공 시 localStorage에 저장
+        saveParticipantToLocalStorage(result[0]);
+        return true;
+      } else {
+        console.error('참가자 생성 실패');
+        return false;
+      }
+    } catch (error) {
+      console.error('참가자 생성 중 오류 발생:', error);
+      return false;
+    }
+  };
+
   const handleSelection = (option: string) => {
     setSelections(prev => [...prev, option]);
 
     if (step === 3) {
-      setSelectedTeamIndex(Math.floor(Math.random() * 5));
+      // 팀이 로드되었는지 확인하고 참가자 배정 진행
+      if (isTeamsLoaded && teams.length > 0) {
+        // 로딩 시작 시 최적의 팀 선택 및 참가자 저장 진행
+        selectLeastPopulatedTeam().then(team => {
+          if (team) {
+            setSelectedTeam(team);
+            // 참가자 생성
+            createParticipant(team).then(success => {
+              if (!success) {
+                setError('참가자 정보를 저장하는데 실패했습니다.');
+              }
+            });
+          } else {
+            console.error('팀 선택에 실패했습니다.');
+          }
+        });
+      } else {
+        console.error('팀 데이터가 로드되지 않았습니다.');
+      }
     }
 
     handleNext();
@@ -140,6 +301,20 @@ const RootPage = () => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
+  };
+
+  // 이름 입력 후 다음 단계로 진행할 때 중복 확인
+  const handleNameSubmit = async () => {
+    if (!name.trim()) return;
+    
+    // 이름 중복 확인 중
+    const nameExists = await checkNameExists(name);
+    
+    // 중복이 아니면 다음 단계로 진행
+    if (!nameExists) {
+      handleNext();
+    }
+    // 중복이면 checkNameExists 함수 내에서 메인 페이지로 이동
   };
 
   const getFullText = () => {
@@ -223,11 +398,6 @@ const RootPage = () => {
   }, [step]);
 
   const renderContent = () => {
-    let teamName = '';
-    let teamImage = '';
-    let teamCharacteristic = '';
-    let teamDescription = '';
-
     if (isLoading) {
       return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
@@ -386,37 +556,32 @@ const RootPage = () => {
           </div>
         );
       case 4: {
-        const teamIndex = selectedTeamIndex;
-
-        if (teamIndex === 0) {
-          teamName = '호랑이';
-          teamImage = team1Image;
-          teamCharacteristic = '용감한';
-          teamDescription = '목표를 향해 도전하고 꾸준히 실천하는 의식적인 연습의 진정한 리더';
-        } else if (teamIndex === 1) {
-          teamName = '여우';
-          teamImage = team2Image;
-          teamCharacteristic = '재치있는';
-          teamDescription = '창의적 사고로 문제를 다양한 각도에서 접근하며 성장을 이끄는 연습가';
-        } else if (teamIndex === 2) {
-          teamName = '곰';
-          teamImage = team3Image;
-          teamCharacteristic = '든든한';
-          teamDescription =
-            '안정적이고 꾸준한 연습으로 단단한 기초를 쌓아 장기적 성장을 이루는 꾸준한 실천가';
-        } else if (teamIndex === 3) {
-          teamName = '팬더';
-          teamImage = team4Image;
-          teamCharacteristic = '창의적인';
-          teamDescription =
-            '독창적인 방식으로 연습 과정을 설계하고 새로운 발전 가능성을 발견하는 혁신가';
-        } else {
-          teamName = '늑대';
-          teamImage = team5Image;
-          teamCharacteristic = '지혜로운';
-          teamDescription =
-            '깊은 통찰력으로 배움의 본질을 파악하고 효율적인 연습 방법을 찾아내는 전략가';
+        // 팀 데이터가 로드되지 않았거나 선택된 팀이 없는 경우 로딩 표시
+        if (!selectedTeam) {
+          return (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-center text-gray-500">팀 데이터를 불러오는 중...</p>
+            </div>
+          );
         }
+
+        // 참가자 생성 실패 시 오류 표시
+        if (error) {
+          return (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-center text-red-500">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                다시 시도하기
+              </button>
+            </div>
+          );
+        }
+
+        // 선택된 팀 데이터 사용
+        const { name: teamName, characteristic, description, image_url } = selectedTeam;
 
         return (
           <div
@@ -438,12 +603,18 @@ const RootPage = () => {
               <style>{pulseKeyframes}</style>
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 rounded-lg"></div>
               <img
-                src={teamImage}
+                src={image_url}
                 alt={`${teamName} 팀`}
                 className="w-[220px] h-auto rounded-lg"
                 style={{
                   boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 255, 255, 0.3)',
                   animation: 'pulse 2s infinite',
+                }}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.style.backgroundColor = '#f0f0f0';
+                  e.currentTarget.style.padding = '30px';
+                  e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
                 }}
               />
             </div>
@@ -452,12 +623,12 @@ const RootPage = () => {
               <h2 className="text-lg font-medium">{name}님은</h2>
               <div className="my-2 py-2 px-3 bg-blue-50 rounded-lg">
                 <h1 className="text-xl font-bold text-blue-600">
-                  {teamCharacteristic} {teamName} 팀
+                  {characteristic} {teamName} 팀
                 </h1>
                 <p className="text-blue-700 text-sm">에 배정되었습니다!</p>
               </div>
               <div className="mt-3 pt-2 pb-1 px-2 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-700 leading-snug text-left">{teamDescription}</p>
+                <p className="text-sm text-gray-700 leading-snug text-left">{description}</p>
               </div>
             </div>
           </div>
@@ -466,6 +637,11 @@ const RootPage = () => {
       default:
         return null;
     }
+  };
+
+  // 완료 버튼 클릭 시 메인 페이지로 이동
+  const handleCompleteClick = () => {
+    navigate('/main');
   };
 
   return (
@@ -503,19 +679,17 @@ const RootPage = () => {
         {step === 1 && name.trim() && (
           <button
             className="bg-[#ff9900] text-white text-xl font-bold py-2 px-8 rounded-lg cursor-pointer mt-5 w-full max-w-[320px] z-20 mb-5"
-            onClick={() => {
-              console.log('좋아! 버튼 클릭됨');
-              handleNext();
-            }}
+            onClick={handleNameSubmit}
+            disabled={isChecking}
           >
-            좋아!
+            {isChecking ? '확인 중...' : '좋아!'}
           </button>
         )}
 
         {step === 4 && (
           <button
             className="bg-[#ff9900] text-white text-xl font-bold py-2 px-8 rounded-lg cursor-pointer mt-5 w-full max-w-[320px] z-20 mb-5"
-            onClick={() => console.log('완료!')}
+            onClick={handleCompleteClick}
           >
             완료!
           </button>
