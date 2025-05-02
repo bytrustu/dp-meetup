@@ -91,34 +91,28 @@ const RootPage = () => {
   const congratsRef = useRef<LottieRefCurrentProps>(null);
 
   useEffect(() => {
-    // localStorage에 저장된 참가자 ID가 있는지 확인
     const savedParticipantId = localStorage.getItem('participantId');
     if (savedParticipantId) {
       checkSavedParticipant(savedParticipantId);
     }
   }, []);
 
-  // 저장된 참가자 정보 확인
   const checkSavedParticipant = async (participantId: string) => {
     try {
       const participant = await participantService.getById(participantId);
       if (participant) {
-        // 참가자 정보가 확인되면 localStorage에 저장하고 main으로 이동
         saveParticipantToLocalStorage(participant);
         navigate('/main');
       }
     } catch (error) {
       console.error('저장된 참가자 정보 확인 실패:', error);
-      // 오류 발생 시 localStorage 초기화
       localStorage.removeItem('participantId');
     }
   };
 
-  // 팀 데이터 불러오기
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        // 활성화된 팀만 가져오기 (getByBatch 메서드는 is_active=true 조건이 포함됨)
         const teamsData = await teamService.getByBatch(1);
         if (teamsData && teamsData.length > 0) {
           setTeams(teamsData);
@@ -134,17 +128,15 @@ const RootPage = () => {
     fetchTeams();
   }, []);
 
-  // 이름 중복 확인
   const checkNameExists = async (name: string) => {
     if (!name.trim()) return false;
-    
+
     try {
       setIsChecking(true);
       const participants = await participantService.getByName(name.trim());
       setIsChecking(false);
-      
+
       if (participants && participants.length > 0) {
-        // 이름이 중복되면 해당 참가자 정보를 localStorage에 저장하고 main으로 이동
         saveParticipantToLocalStorage(participants[0]);
         navigate('/main');
         return true;
@@ -157,7 +149,6 @@ const RootPage = () => {
     }
   };
 
-  // 참가자 정보를 localStorage에 저장
   const saveParticipantToLocalStorage = (participant: Participant) => {
     localStorage.setItem('participantId', participant.id);
     localStorage.setItem('participantName', participant.name);
@@ -205,43 +196,37 @@ const RootPage = () => {
     }, 100);
   };
 
-  // 가장 적은 인원을 가진 팀을 선택하는 함수
   const selectLeastPopulatedTeam = async () => {
     try {
-      // 활성화된 팀만 이미 불러온 상태 (teams 배열)
       if (!isTeamsLoaded || teams.length === 0) {
         console.error('팀 데이터가 로드되지 않았습니다.');
         return null;
       }
 
-      // 팀별 참가자 수 가져오기
       const teamCounts = await participantService.getTeamCounts(1);
       if (!teamCounts) {
         console.error('팀별 참가자 수를 가져오는 데 실패했습니다.');
-        return teams[Math.floor(Math.random() * teams.length)]; // 실패시 랜덤 선택
+        return teams[Math.floor(Math.random() * teams.length)];
       }
 
-      // 각 팀의 참가자 수 확인 (없는 팀은 0으로 초기화)
       const teamsWithCounts = teams.map(team => ({
         ...team,
-        count: teamCounts[team.name] || 0
+        count: teamCounts[team.name] || 0,
       }));
 
-      // 가장 적은 인원을 가진 팀 찾기
       const minCount = Math.min(...teamsWithCounts.map(t => t.count));
       const leastPopulatedTeams = teamsWithCounts.filter(t => t.count === minCount);
 
-      // 가장 적은 인원을 가진 팀이 여러 개라면 그 중 랜덤으로 선택
-      const selectedTeam = leastPopulatedTeams[Math.floor(Math.random() * leastPopulatedTeams.length)];
+      const selectedTeam =
+        leastPopulatedTeams[Math.floor(Math.random() * leastPopulatedTeams.length)];
 
       return selectedTeam;
     } catch (error) {
       console.error('팀 선택 중 오류 발생:', error);
-      return teams[Math.floor(Math.random() * teams.length)]; // 오류 발생 시 랜덤 선택
+      return teams[Math.floor(Math.random() * teams.length)];
     }
   };
 
-  // 참가자를 DB에 저장하는 함수
   const createParticipant = async (team: Team) => {
     try {
       if (!name.trim()) {
@@ -252,13 +237,12 @@ const RootPage = () => {
       const newParticipant: ParticipantCreate = {
         name: name.trim(),
         team: team.name,
-        role: '참가자', // 기본 역할
-        batch: 1 // 1기로 고정
+        role: '참가자',
+        batch: 1,
       };
 
       const result = await participantService.create(newParticipant);
       if (result && result.length > 0) {
-        // 참가자 생성 성공 시 localStorage에 저장
         saveParticipantToLocalStorage(result[0]);
         return true;
       } else {
@@ -275,13 +259,10 @@ const RootPage = () => {
     setSelections(prev => [...prev, option]);
 
     if (step === 3) {
-      // 팀이 로드되었는지 확인하고 참가자 배정 진행
       if (isTeamsLoaded && teams.length > 0) {
-        // 로딩 시작 시 최적의 팀 선택 및 참가자 저장 진행
         selectLeastPopulatedTeam().then(team => {
           if (team) {
             setSelectedTeam(team);
-            // 참가자 생성
             createParticipant(team).then(success => {
               if (!success) {
                 setError('참가자 정보를 저장하는데 실패했습니다.');
@@ -303,18 +284,14 @@ const RootPage = () => {
     setName(e.target.value);
   };
 
-  // 이름 입력 후 다음 단계로 진행할 때 중복 확인
   const handleNameSubmit = async () => {
     if (!name.trim()) return;
-    
-    // 이름 중복 확인 중
+
     const nameExists = await checkNameExists(name);
-    
-    // 중복이 아니면 다음 단계로 진행
+
     if (!nameExists) {
       handleNext();
     }
-    // 중복이면 checkNameExists 함수 내에서 메인 페이지로 이동
   };
 
   const getFullText = () => {
@@ -556,7 +533,6 @@ const RootPage = () => {
           </div>
         );
       case 4: {
-        // 팀 데이터가 로드되지 않았거나 선택된 팀이 없는 경우 로딩 표시
         if (!selectedTeam) {
           return (
             <div className="flex justify-center items-center h-full">
@@ -565,7 +541,6 @@ const RootPage = () => {
           );
         }
 
-        // 참가자 생성 실패 시 오류 표시
         if (error) {
           return (
             <div className="flex justify-center items-center h-full">
@@ -580,7 +555,6 @@ const RootPage = () => {
           );
         }
 
-        // 선택된 팀 데이터 사용
         const { name: teamName, characteristic, description, image_url } = selectedTeam;
 
         return (
@@ -610,11 +584,12 @@ const RootPage = () => {
                   boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 255, 255, 0.3)',
                   animation: 'pulse 2s infinite',
                 }}
-                onError={(e) => {
+                onError={e => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.style.backgroundColor = '#f0f0f0';
                   e.currentTarget.style.padding = '30px';
-                  e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
+                  e.currentTarget.src =
+                    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
                 }}
               />
             </div>
@@ -639,7 +614,6 @@ const RootPage = () => {
     }
   };
 
-  // 완료 버튼 클릭 시 메인 페이지로 이동
   const handleCompleteClick = () => {
     navigate('/main');
   };
