@@ -3,6 +3,7 @@ import { participantService, teamService, storageService } from '../../api';
 import { Participant, ParticipantCreate } from '../../types/participant.types';
 import { Team, TeamCreate } from '../../types/team.types';
 import MobileLayout from '../../components/layouts/MobileLayout';
+import { useNavigate } from 'react-router-dom';
 
 enum Tab {
   TEAMS = 'teams',
@@ -16,6 +17,7 @@ enum Mode {
 }
 
 const SettingPage = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>(Tab.TEAMS);
   const [mode, setMode] = useState<Mode>(Mode.LIST);
   const [batch, setBatch] = useState<number>(1);
@@ -396,7 +398,27 @@ const SettingPage = () => {
   return (
     <MobileLayout>
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-6">관리자 설정</h1>
+        <div className="flex items-center mb-4">
+          <button
+            className="mr-2 p-2 rounded-full hover:bg-gray-100"
+            onClick={() => navigate('/', { replace: true })}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-gray-700"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+        </div>
 
         {/* 탭 네비게이션 */}
         <div className="flex mb-6 border-b">

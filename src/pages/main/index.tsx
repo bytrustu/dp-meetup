@@ -125,6 +125,12 @@ const MainPage = () => {
           </div>
         </div>
 
+        {/* 숨겨진 관리자 영역 - 더블 클릭시 teams 페이지로 이동 */}
+        <div 
+          className="absolute left-0 top-[65px] w-20 h-20 opacity-0"
+          onDoubleClick={() => navigate('/teams')}
+        />
+
         {/* 메인 컨텐츠 */}
         <div className="container mx-auto p-4 pb-16">
           {/* 팀 로고 섹션 */}
@@ -132,7 +138,10 @@ const MainPage = () => {
             className="flex flex-col items-center my-4"
             style={{ animation: 'fadeIn 0.4s ease-out forwards' }}
           >
-            <div className="w-[120px] h-[120px] rounded-full overflow-hidden mb-3 flex items-center justify-center bg-gray-50 p-2 border border-gray-100 shadow-sm">
+            <div 
+              className="w-[120px] h-[120px] rounded-full overflow-hidden mb-3 flex items-center justify-center bg-gray-50 p-2 border border-gray-100 shadow-sm cursor-pointer"
+              onDoubleClick={() => navigate('/teams')}
+            >
               <img
                 src={team.image_url}
                 alt={`${team.name} 팀 로고`}
