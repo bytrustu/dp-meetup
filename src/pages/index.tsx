@@ -53,15 +53,22 @@ const HomePage = () => {
             />
           </div>
 
-          <div className="flex justify-center w-full">
+          <div className="flex justify-center w-full rounded-lg">
             <img
               ref={introGifRef}
               src={introGif}
               alt="Introduction"
-              className="w-full max-w-[300px] h-auto rounded-lg bg-white/90"
+              className="w-full max-w-[300px] h-auto rounded-lg"
+              loading="eager"
+              decoding="async"
               onTouchStart={handleIntroGifTap}
               onDoubleClick={() => navigate('/setting')}
-              style={{ WebkitTouchCallout: 'none', userSelect: 'none' }}
+              style={{
+                WebkitTouchCallout: 'none',
+                userSelect: 'none',
+                display: 'block',
+                objectFit: 'contain',
+              }}
             />
           </div>
         </div>
