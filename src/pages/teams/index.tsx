@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import MobileLayout from '../../components/layouts/MobileLayout';
 import { teamService, participantService } from '../../api';
 import { Team } from '../../types/team.types';
@@ -16,28 +16,29 @@ const TeamsPage = () => {
   const [teamMembers, setTeamMembers] = useState<Participant[]>([]);
   const [changeLoading, setChangeLoading] = useState<{ [key: string]: boolean }>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [totalFirstBatchParticipants, setTotalFirstBatchParticipants] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
+        
         const teamsData = await teamService.getAll();
         if (teamsData && teamsData.length > 0) {
           const activeTeams = teamsData.filter(team => team.is_active);
-
+          
           const sortedTeams = [...activeTeams].sort((a, b) => {
             const indexA = TEAM_ORDER.indexOf(a.name);
             const indexB = TEAM_ORDER.indexOf(b.name);
-
+            
             if (indexA === -1) return 1;
             if (indexB === -1) return -1;
-
+            
             return indexA - indexB;
           });
-
+          
           setTeams(sortedTeams);
-
+          
           if (!selectedTeam && sortedTeams.length > 0) {
             setSelectedTeam(sortedTeams[0].name);
           }
@@ -45,17 +46,21 @@ const TeamsPage = () => {
           setTeams([]);
           setSelectedTeam(null);
         }
-
+        
         const participantsData = await participantService.getAll();
         if (participantsData) {
+          // 1기 참가자만 필터링
+          const firstBatchParticipants = participantsData.filter(p => p.batch === 1 && p.role === "참가자");
+          setTotalFirstBatchParticipants(firstBatchParticipants.length);
+          
           if (selectedTeam) {
-            const filteredMembers = participantsData.filter(p => p.team === selectedTeam);
+            const filteredMembers = participantsData.filter(p => p.team === selectedTeam && p.batch === 1);
             setTeamMembers(filteredMembers);
           } else {
             setTeamMembers([]);
           }
         }
-
+        
         setLoading(false);
       } catch (err) {
         console.error('데이터 로딩 중 오류 발생:', err);
@@ -72,14 +77,14 @@ const TeamsPage = () => {
   };
   const handleTeamChange = async (participantId: string, newTeam: string, currentName: string) => {
     if (newTeam === selectedTeam) return;
-
+    
     try {
       setChangeLoading(prev => ({ ...prev, [participantId]: true }));
       setError(null);
       setSuccessMessage(null);
-
+      
       const result = await participantService.update(participantId, { team: newTeam });
-
+      
       if (result) {
         setSuccessMessage(`${currentName}님이 ${newTeam} 팀으로 이동되었습니다.`);
         setTeamMembers(prev => prev.filter(p => p.id !== participantId));
@@ -120,8 +125,14 @@ const TeamsPage = () => {
               />
             </svg>
           </button>
+          
+          <div className="bg-blue-50 px-3 py-2 rounded-lg ml-auto">
+            <p className="text-blue-800 text-sm font-medium">
+              체크인 완료: <span className="font-bold">{totalFirstBatchParticipants}명</span>
+            </p>
+          </div>
         </div>
-
+        
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex justify-between items-center">
             <span>{error}</span>
@@ -130,7 +141,7 @@ const TeamsPage = () => {
             </button>
           </div>
         )}
-
+        
         {loading && (
           <div className="flex items-center justify-center py-10">
             <div className="animate-pulse text-center">
@@ -138,7 +149,7 @@ const TeamsPage = () => {
             </div>
           </div>
         )}
-
+        
         {!loading && !error && (
           <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
             <div className="flex overflow-x-auto pb-2 mb-4 border-b">
@@ -160,7 +171,7 @@ const TeamsPage = () => {
                 <div className="text-gray-500 p-2">등록된 팀이 없습니다.</div>
               )}
             </div>
-
+            
             {selectedTeam && (
               <div>
                 <div className="flex justify-between items-center mb-4">
@@ -171,11 +182,14 @@ const TeamsPage = () => {
                     </span>
                   </h3>
                 </div>
-
+                
                 {teamMembers.length > 0 ? (
                   <div className="divide-y divide-gray-100">
                     {teamMembers.map(member => (
-                      <div key={member.id} className="py-3 px-2 flex items-center justify-between">
+                      <div
+                        key={member.id}
+                        className="py-3 px-2 flex items-center justify-between"
+                      >
                         <div className="flex items-center">
                           <div className="bg-blue-100 rounded-full w-10 h-10 flex items-center justify-center text-blue-500 font-bold mr-3">
                             {member.name.charAt(0)}
@@ -189,7 +203,7 @@ const TeamsPage = () => {
                           <select
                             className="text-sm border rounded py-1 px-2 bg-white"
                             value={member.team}
-                            onChange={e => handleTeamChange(member.id, e.target.value, member.name)}
+                            onChange={(e) => handleTeamChange(member.id, e.target.value, member.name)}
                             disabled={changeLoading[member.id]}
                           >
                             <option value={member.team}>현재 팀</option>
@@ -233,7 +247,7 @@ const TeamsPage = () => {
           </div>
         )}
       </div>
-
+      
       {successMessage && (
         <div className="fixed bottom-4 left-0 right-0 mx-auto w-[90%] max-w-sm bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center shadow-lg z-50">
           <span>{successMessage}</span>
