@@ -58,7 +58,7 @@ const HomePage = () => {
               ref={introGifRef}
               src={introGif}
               alt="Introduction"
-              className="w-full max-w-[300px] h-auto rounded-lg"
+              className="w-full max-w-[300px] h-auto rounded-lg dark:bg-white/90"
               onTouchStart={handleIntroGifTap}
               onDoubleClick={() => navigate('/setting')}
               style={{ WebkitTouchCallout: 'none', userSelect: 'none' }}
