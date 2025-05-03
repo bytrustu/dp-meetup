@@ -72,6 +72,13 @@ textarea:focus {
     background-color: white !important;
     color: black !important;
   }
+  
+  /* 다크 모드에서 이미지 표시 문제 해결 */
+  img {
+    opacity: 1 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
 }
 
 /* 기존 라이트 모드 설정은 유지 */

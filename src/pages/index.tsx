@@ -61,7 +61,14 @@ const HomePage = () => {
               className="w-full max-w-[300px] h-auto rounded-lg"
               onTouchStart={handleIntroGifTap}
               onDoubleClick={() => navigate('/setting')}
-              style={{ WebkitTouchCallout: 'none', userSelect: 'none' }}
+              style={{ 
+                WebkitTouchCallout: 'none', 
+                userSelect: 'none',
+                opacity: '1',
+                filter: 'none',
+                WebkitFilter: 'none',
+                mixBlendMode: 'normal'
+              }}
             />
           </div>
         </div>
