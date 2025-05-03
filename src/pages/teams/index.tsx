@@ -26,43 +26,48 @@ const TeamsPage = () => {
         const teamsData = await teamService.getAll();
         if (teamsData && teamsData.length > 0) {
           const activeTeams = teamsData.filter(team => team.is_active);
-
+          
           const sortedTeams = [...activeTeams].sort((a, b) => {
             const indexA = TEAM_ORDER.indexOf(a.name);
             const indexB = TEAM_ORDER.indexOf(b.name);
-
+            
             if (indexA === -1) return 1;
             if (indexB === -1) return -1;
-
+            
             return indexA - indexB;
           });
-
+          
           setTeams(sortedTeams);
-
+          
           if (!selectedTeam && sortedTeams.length > 0) {
             setSelectedTeam(sortedTeams[0].name);
+          }
+          
+          const participantsData = await participantService.getAll();
+          if (participantsData) {
+            // 활성화된 팀 이름 목록
+            const activeTeamNames = activeTeams.map(team => team.name);
+            
+            // 1기 참가자 중 활성화된 팀에 속한 참가자만 필터링
+            const firstBatchParticipants = participantsData.filter(
+              p => p.batch === 1 && 
+                   p.role === '참가자' && 
+                   activeTeamNames.includes(p.team)
+            );
+            setTotalFirstBatchParticipants(firstBatchParticipants.length);
+            
+            if (selectedTeam) {
+              const filteredMembers = participantsData.filter(
+                p => p.team === selectedTeam && p.batch === 1
+              );
+              setTeamMembers(filteredMembers);
+            } else {
+              setTeamMembers([]);
+            }
           }
         } else {
           setTeams([]);
           setSelectedTeam(null);
-        }
-
-        const participantsData = await participantService.getAll();
-        if (participantsData) {
-          // 1기 참가자만 필터링
-          const firstBatchParticipants = participantsData.filter(
-            p => p.batch === 1 && p.role === '참가자'
-          );
-          setTotalFirstBatchParticipants(firstBatchParticipants.length);
-
-          if (selectedTeam) {
-            const filteredMembers = participantsData.filter(
-              p => p.team === selectedTeam && p.batch === 1
-            );
-            setTeamMembers(filteredMembers);
-          } else {
-            setTeamMembers([]);
-          }
         }
 
         setLoading(false);
