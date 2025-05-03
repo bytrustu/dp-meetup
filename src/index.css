@@ -7,9 +7,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #213547;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -46,7 +46,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #f9f9f9;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -62,6 +62,19 @@ textarea:focus {
   outline: 1px solid #f90;
 }
 
+/* 다크 모드에서도 라이트 모드를 강제 적용 */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #ffffff;
+  }
+  
+  input, textarea {
+    background-color: white !important;
+    color: black !important;
+  }
+}
+
+/* 기존 라이트 모드 설정은 유지 */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
