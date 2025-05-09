@@ -75,7 +75,7 @@ const HomePage = () => {
 
         <Link
           to="/join"
-          className="bg-[#ff9900] hover:bg-[#ff9900] active:bg-[#ff9900] text-white hover:text-white active:text-white text-xl font-bold py-3 px-8 rounded-lg cursor-pointer w-full max-w-[320px] text-center mt-auto mb-8 animate-pulse outline-none focus:outline-none hover:outline-none active:outline-none focus:ring-0"
+          className="bg-[#ff9900] hover:bg-[#ff9900] active:bg-[#ff9900] text-white hover:text-white active:text-white text-xl font-bold py-3 px-8 rounded-lg cursor-pointer w-full max-w-[320px] text-center mt-auto mb-4 animate-pulse outline-none focus:outline-none hover:outline-none active:outline-none focus:ring-0"
           style={{ outline: 'none' }}
         >
           참여하기

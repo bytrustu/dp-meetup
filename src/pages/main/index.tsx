@@ -230,7 +230,7 @@ const MainPage = () => {
           </div>
 
           {/* 밋업 일정 */}
-          <div
+          {/* <div
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6"
             style={{ animation: 'fadeIn 0.7s ease-out forwards' }}
           >
@@ -262,7 +262,7 @@ const MainPage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </MobileLayout>

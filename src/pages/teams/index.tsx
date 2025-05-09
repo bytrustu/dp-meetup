@@ -5,7 +5,7 @@ import { Team } from '../../types/team.types';
 import { Participant } from '../../types/participant.types';
 import { useNavigate } from 'react-router-dom';
 
-const TEAM_ORDER = ['호랑이', '여우', '팬더', '곰', '늑대'];
+const TEAM_ORDER = ['호랑이', '사자', '여우', '팬더', '곰', '늑대'];
 
 const TeamsPage = () => {
   const navigate = useNavigate();
