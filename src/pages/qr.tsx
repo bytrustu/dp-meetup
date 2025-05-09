@@ -9,31 +9,7 @@ const QRPage = () => {
       <div className="absolute top-14 right-14 w-24 h-1 bg-[#1e45f2] opacity-40"></div>
 
       <div className="flex items-start justify-center w-full max-w-6xl px-8 gap-16 z-10">
-        {/* 왼쪽: QR 코드 카드 */}
-        <div className="bg-white rounded-xl shadow-lg p-8 pt-12 pb-10 w-[400px] relative">
-          <div className="absolute top-0 left-10 w-3 h-3 bg-[#4973ff] rounded-full -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-10 w-3 h-3 bg-[#4973ff] rounded-full translate-y-1/2"></div>
-          
-          <div className="flex justify-center mb-7">
-            <QRCodeCanvas
-              value="https://dp-meetup.vercel.app/"
-              size={280}
-              bgColor="#fff"
-              fgColor="#1e293b"
-              level="H"
-              includeMargin={false}
-            />
-          </div>
-          
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">QR 코드를 스캔하세요</h3>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              스마트폰 카메라 앱으로 스캔하세요
-            </p>
-          </div>
-        </div>
-
-        {/* 오른쪽: 텍스트 정보 */}
+        {/* 왼쪽: 텍스트 정보 */}
         <div className="max-w-md pt-8">
           <h1 className="text-5xl font-bold mb-2">
             <span className="text-[#1e293b]">의식적인 연습 밋업</span>
@@ -70,6 +46,30 @@ const QRPage = () => {
               <div className="font-bold text-gray-800">선릉역 테크살롱</div>
               <div className="text-gray-600">성담빌딩 13층</div>
             </div>
+          </div>
+        </div>
+
+        {/* 오른쪽: QR 코드 카드 */}
+        <div className="bg-white rounded-xl shadow-lg p-8 pt-12 pb-10 w-[400px] relative">
+          <div className="absolute top-0 left-10 w-3 h-3 bg-[#4973ff] rounded-full -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-10 w-3 h-3 bg-[#4973ff] rounded-full translate-y-1/2"></div>
+          
+          <div className="flex justify-center mb-7">
+            <QRCodeCanvas
+              value="https://dp-meetup.vercel.app/"
+              size={280}
+              bgColor="#fff"
+              fgColor="#1e293b"
+              level="H"
+              includeMargin={false}
+            />
+          </div>
+          
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">QR 코드를 스캔하세요</h3>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              스마트폰 카메라 앱으로 스캔하세요
+            </p>
           </div>
         </div>
       </div>
