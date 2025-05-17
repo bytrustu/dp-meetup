@@ -1,32 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
+import { useDoubleTap } from '../hooks/useDoubleTap';
 import introGif from '../assets/intro.gif';
 import mainTypo from '../assets/main-typo.png';
 import MobileLayout from '../shared/layouts/MobileLayout';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [lastTap, setLastTap] = useState<number>(0);
   const mainTypoRef = useRef<HTMLImageElement>(null);
   const introGifRef = useRef<HTMLImageElement>(null);
 
-  const handleMainTypoTap = () => {
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-    if (now - lastTap < DOUBLE_TAP_DELAY) {
-      navigate('/teams');
-    }
-    setLastTap(now);
-  };
+  const handleMainTypoTap = useDoubleTap(() => navigate('/teams'));
 
-  const handleIntroGifTap = () => {
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-    if (now - lastTap < DOUBLE_TAP_DELAY) {
-      navigate('/setting');
-    }
-    setLastTap(now);
-  };
+  const handleIntroGifTap = useDoubleTap(() => navigate('/setting'));
 
   useEffect(() => {
     if (mainTypoRef.current) {
