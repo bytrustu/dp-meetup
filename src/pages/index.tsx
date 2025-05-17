@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import introGif from '../assets/intro.gif';
 import mainTypo from '../assets/main-typo.png';
-import MobileLayout from '../components/layouts/MobileLayout';
+import MobileLayout from '../shared/layouts/MobileLayout';
 
 const HomePage = () => {
   const navigate = useNavigate();
