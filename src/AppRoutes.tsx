@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import NotFound from './pages/404';
+import { NotFound } from './pages/404';
 
 type Module = {
   [modulePath: string]: { default: React.ComponentType<unknown> };
@@ -19,7 +19,7 @@ const routes = Object.keys(ROUTES).map(route => {
   return { path, component: ROUTES[route].default };
 });
 
-const AppRoutes = (): React.ReactElement => {
+export const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<div>로딩중...</div>}>
@@ -33,5 +33,3 @@ const AppRoutes = (): React.ReactElement => {
     </BrowserRouter>
   );
 };
-
-export default AppRoutes;

@@ -1,24 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MobileLayout from '../../components/layouts/MobileLayout.tsx';
+import MobileLayout from '../../shared/layouts/MobileLayout';
 import { teamService, participantService } from '../../api';
-import { Team } from '../../types/team.types';
-import { Participant } from '../../types/participant.types';
+import { Team } from '../../features/teams/types';
+import { Participant } from '../../features/participants/types';
+import keyframes from '../../styles/animations/keyframes';
 
-const fadeInAnimation = `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-
-const MainPage = () => {
+export const MainPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +96,7 @@ const MainPage = () => {
 
   return (
     <MobileLayout>
-      <style>{fadeInAnimation}</style>
+      <style>{keyframes.fadeIn}</style>
       <div className="min-h-screen w-full overflow-auto bg-white">
         {/* 헤더 */}
         <div className="py-4 px-4 border-b border-gray-100 sticky top-0 z-10 bg-white shadow-sm">

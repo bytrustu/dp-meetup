@@ -1,5 +1,5 @@
 // 테마 크기 정의
-const sizes = {
+export const sizes = {
   borderRadius: {
     small: '4px',
     medium: '8px',

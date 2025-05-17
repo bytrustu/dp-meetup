@@ -1,12 +1,11 @@
-import { supabase } from './supabase';
-import { participantService } from './services/participant.service';
-import { teamService } from './services/team.service';
-import { storageService } from './services/storage.service';
+import { supabase } from '../shared/api/supabase';
+import { participantService } from '../features/participants/api/participantService';
+import { teamService } from '../features/teams/api/teamService';
+import { storageService } from '../shared/api/storageService';
 
-// 추후 다른 서비스들도 여기서 export 할 수 있습니다
 export {
   supabase,
   participantService,
   teamService,
-  storageService
-}; 
+  storageService,
+};

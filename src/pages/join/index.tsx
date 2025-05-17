@@ -5,74 +5,13 @@ import heroImage from '../../assets/hero.gif';
 import loaderImage from '../../assets/loader.png';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import congratsAnimation from '../../assets/congrats.json';
-import MobileLayout from '../../components/layouts/MobileLayout.tsx';
+import MobileLayout from '../../shared/layouts/MobileLayout';
 import { teamService, participantService } from '../../api';
-import { Team } from '../../types/team.types';
-import { Participant, ParticipantCreate } from '../../types/participant.types';
+import { Team } from '../../features/teams/types';
+import { Participant, ParticipantCreate } from '../../features/participants/types';
+import keyframes from '../../styles/animations/keyframes';
 
-const spinKeyframes = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-const progressKeyframes = `
-  @keyframes progress {
-    0% {
-      stroke-dasharray: 0 320;
-    }
-    100% {
-      stroke-dasharray: 320 0;
-    }
-  }
-`;
-
-const pulseKeyframes = `
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 255, 255, 0.3);
-    }
-    50% {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 50px rgba(255, 255, 255, 0.5);
-    }
-    100% {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 255, 255, 0.3);
-    }
-  }
-`;
-
-const sparkleKeyframes = `
-  @keyframes sparkle {
-    0% {
-      transform: scale(0) rotate(0deg);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1.5) rotate(180deg);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(0) rotate(360deg);
-      opacity: 0;
-    }
-  }
-`;
-
-const fadeInKeyframes = `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-
-const RootPage = () => {
+export const RootPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -378,9 +317,9 @@ const RootPage = () => {
     if (isLoading) {
       return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <style>{spinKeyframes}</style>
-          <style>{progressKeyframes}</style>
-          <style>{sparkleKeyframes}</style>
+          <style>{keyframes.spin}</style>
+          <style>{keyframes.progress}</style>
+          <style>{keyframes.sparkle}</style>
           <div className="flex flex-col items-center justify-center p-8 rounded-xl">
             <div className="relative flex items-center justify-center">
               <img src={loaderImage} alt="로딩 중" className="w-[120px] h-[120px] rounded-full" />
@@ -562,7 +501,7 @@ const RootPage = () => {
             className="flex flex-col items-center w-full mt-3"
             style={{ animation: 'fadeIn 0.5s ease-out' }}
           >
-            <style>{fadeInKeyframes}</style>
+            <style>{keyframes.fadeIn}</style>
 
             <div className="absolute top-0 left-0 w-full z-10">
               <Lottie
@@ -574,7 +513,7 @@ const RootPage = () => {
             </div>
 
             <div className="relative mb-5">
-              <style>{pulseKeyframes}</style>
+              <style>{keyframes.pulse}</style>
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 rounded-lg"></div>
               <img
                 src={image_url}

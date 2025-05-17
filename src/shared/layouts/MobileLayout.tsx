@@ -7,7 +7,11 @@ type MobileLayoutProps = {
   backgroundImage?: string;
 };
 
-const MobileLayout = ({ children, backgroundColor, backgroundImage }: MobileLayoutProps) => {
+export const MobileLayout = ({
+  children,
+  backgroundColor,
+  backgroundImage,
+}: MobileLayoutProps) => {
   return (
     <div
       className="flex items-center justify-center min-h-screen w-screen"

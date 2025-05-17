@@ -1,6 +1,6 @@
 import { QRCodeCanvas } from 'qrcode.react';
 
-const QRPage = () => {
+export const QRPage = () => {
   return (
     <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#e9f0ff] overflow-hidden">
       {/* 배경 장식 요소 */}
@@ -77,4 +77,4 @@ const QRPage = () => {
   );
 };
 
-export default QRPage; 
+export default QRPage;

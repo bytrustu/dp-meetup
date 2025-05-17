@@ -5,7 +5,7 @@ type LoadingProps = {
   selections: string[];
 };
 
-const Loading = ({ showSpark, selections }: LoadingProps): React.ReactNode => {
+export const Loading = ({ showSpark, selections }: LoadingProps): React.ReactNode => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
       <style>{`

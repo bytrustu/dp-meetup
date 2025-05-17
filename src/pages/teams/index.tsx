@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import MobileLayout from '../../components/layouts/MobileLayout';
+import MobileLayout from '../../shared/layouts/MobileLayout';
 import { teamService, participantService } from '../../api';
-import { Team } from '../../types/team.types';
-import { Participant } from '../../types/participant.types';
+import { Team } from '../../features/teams/types';
+import { Participant } from '../../features/participants/types';
 import { useNavigate } from 'react-router-dom';
 
 const TEAM_ORDER = ['호랑이', '사자', '여우', '팬더', '곰', '늑대'];
 
-const TeamsPage = () => {
+export const TeamsPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

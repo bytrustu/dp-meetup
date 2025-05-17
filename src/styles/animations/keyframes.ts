@@ -1,5 +1,5 @@
 // 모든 애니메이션 키프레임 정의
-const keyframes = {
+export const keyframes = {
   spin: `
     @keyframes spin {
       0% { transform: rotate(0deg); }

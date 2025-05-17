@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const NotFound = (): React.ReactElement => {
+export const NotFound = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 text-center">
@@ -27,5 +27,3 @@ const NotFound = (): React.ReactElement => {
     </div>
   );
 };
-
-export default NotFound;

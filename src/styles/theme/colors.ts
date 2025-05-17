@@ -1,5 +1,5 @@
 // 테마 색상 정의
-const colors = {
+export const colors = {
   primary: {
     main: '#ff9900',
     light: '#ffb74d',

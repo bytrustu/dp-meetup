@@ -1,7 +1,7 @@
 import keyframes from '../animations/keyframes';
 
 // 전역 스타일을 정의합니다
-const globalStyles = {
+export const globalStyles = {
   // 애니메이션 키프레임
   keyframes: Object.values(keyframes).join('\n'),
 
@@ -74,7 +74,7 @@ const globalStyles = {
 };
 
 // 모든 전역 스타일을 하나의 문자열로 결합합니다
-const getGlobalStyles = () => {
+export const getGlobalStyles = () => {
   return Object.values(globalStyles).join('\n');
 };
 
