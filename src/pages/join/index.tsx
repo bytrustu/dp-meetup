@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import bgImage from '../../assets/bg.webp';
 import heroImage from '../../assets/hero.gif';
 import MobileLayout from '../../shared/layouts/MobileLayout';
@@ -9,7 +8,6 @@ import useJoinFlow from '../../hooks/useJoinFlow';
 import keyframes from '../../styles/animations/keyframes';
 
 const RootPage = () => {
-  const navigate = useNavigate();
   const {
     step,
     name,

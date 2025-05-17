@@ -435,6 +435,7 @@ const useSettingManager = () => {
     setError,
     setSuccess,
     handleGoHome,
+    setTeamForm,
   };
 };
 

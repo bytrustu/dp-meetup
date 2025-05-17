@@ -2,8 +2,6 @@ import MobileLayout from '../../shared/layouts/MobileLayout';
 import { useNavigate } from 'react-router-dom';
 import useTeamsData from '../../hooks/useTeamsData';
 
-const TEAM_ORDER = ['호랑이', '사자', '여우', '팬더', '곰', '늑대'];
-
 const TeamsPage = () => {
   const navigate = useNavigate();
   const {

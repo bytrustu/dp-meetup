@@ -10,9 +10,6 @@ const SettingPage = () => {
     batch,
     setBatch,
     teams,
-    participants,
-    selectedTeam,
-    selectedParticipant,
     loading,
     error,
     success,
@@ -33,16 +30,16 @@ const SettingPage = () => {
     handleTeamFormChange,
     handleParticipantFormChange,
     handleImageChange,
-    resetTeamForm,
-    resetParticipantForm,
     startCreateMode,
     handleCancel,
     clearMessages,
     setError,
     setSuccess,
     handleGoHome,
+    setTeamForm,
   } = useSettingManager();
 
+  return (
     <MobileLayout>
       <div className="p-4">
         <div className="flex items-center mb-4">
@@ -251,14 +248,12 @@ const SettingPage = () => {
                       onChange={e => setTeamFilter(e.target.value)}
                       className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="전체">전체 팀</option>
-                      {teams
-                        .filter(team => team.is_active)
-                        .map(team => (
-                          <option key={team.id} value={team.name}>
-                            {team.name}
-                          </option>
-                        ))}
+                      <option value="전체">전체</option>
+                      {teams.map(team => (
+                        <option key={team.id} value={team.name}>
+                          {team.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -273,6 +268,9 @@ const SettingPage = () => {
                             팀
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            역할
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             작업
                           </th>
                         </tr>
@@ -281,10 +279,11 @@ const SettingPage = () => {
                         {filteredParticipants.length > 0 ? (
                           filteredParticipants.map(participant => (
                             <tr key={participant.id}>
-                              <td className="px-6 py-4 whitespace-nowrap font-medium">
-                                {participant.name}
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="font-medium">{participant.name}</span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">{participant.team}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">{participant.role}</td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex gap-2">
                                   <button
@@ -305,10 +304,7 @@ const SettingPage = () => {
                           ))
                         ) : (
                           <tr>
-                            <td
-                              colSpan={3}
-                              className="px-6 py-8 text-center text-gray-500 align-top"
-                            >
+                            <td colSpan={4} className="px-6 py-8 text-center text-gray-500 align-top">
                               <div className="flex flex-col items-center">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -324,11 +320,7 @@ const SettingPage = () => {
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                   />
                                 </svg>
-                                <p className="font-medium">
-                                  {teamFilter === '전체'
-                                    ? '데이터가 없습니다'
-                                    : `${teamFilter} 팀의 참가자가 없습니다`}
-                                </p>
+                                <p className="font-medium">데이터가 없습니다</p>
                                 <p className="text-sm mt-1">새 항목을 추가해 보세요</p>
                               </div>
                             </td>
@@ -354,7 +346,7 @@ const SettingPage = () => {
                 className="space-y-6"
               >
                 <div>
-                  <label className="block mb-2 font-medium">팀 이름 *</label>
+                  <label className="block mb-2 font-medium">이름 *</label>
                   <input
                     type="text"
                     name="name"
