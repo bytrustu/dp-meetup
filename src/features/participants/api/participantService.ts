@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import { Participant, ParticipantCreate } from '../../types/participant.types';
+import { supabase } from '../../../shared/api/supabase';
+import { Participant, ParticipantCreate } from '../types';
 
 export const participantService = {
   getAll: async () => {
@@ -56,7 +56,7 @@ export const participantService = {
     }
     
     const teamCounts: Record<string, number> = {};
-    data.forEach(participant => {
+    data.forEach((participant: { team?: string }) => {
       if (participant.team) {
         teamCounts[participant.team] = (teamCounts[participant.team] || 0) + 1;
       }

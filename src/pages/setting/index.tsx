@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { participantService, teamService, storageService } from '../../api';
-import { Participant, ParticipantCreate } from '../../types/participant.types';
-import { Team, TeamCreate } from '../../types/team.types';
-import MobileLayout from '../../components/layouts/MobileLayout';
+import { Participant, ParticipantCreate } from '../../features/participants/types';
+import { Team, TeamCreate } from '../../features/teams/types';
+import MobileLayout from '../../shared/layouts/MobileLayout';
 import { useNavigate } from 'react-router-dom';
 
 enum Tab {
