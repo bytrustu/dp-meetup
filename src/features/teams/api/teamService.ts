@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import { Team, TeamCreate } from '../../types/team.types';
+import { supabase } from '../../../shared/api/supabase';
+import { Team, TeamCreate } from '../types';
 
 export const teamService = {
   getAll: async () => {
